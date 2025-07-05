@@ -2,16 +2,17 @@
 //!
 //! All operators are defined in a macro at the bottom of the file.
 //! To add more, just give the input token string, its kind, and the function.
+//! Make sure the last operators in the binary and unary sections end with a `;`, not a `,`.
 //!
 //! The different kinds are `Op::Bi` and `Op::Un`, representing binary and
 //! unary operators respectively.
-//! Binary operators take two inputs, for example adding two numbers.
-//! Unary operators take one input, for examples getting the square root of a number.
+//! Binary operators take two inputs. For example, adding two numbers.
+//! Unary operators take one input. For example, getting the square root of a number.
 
 use std::ops::{Add, Div, Mul, Neg, Rem, Sub};
 use std::str::FromStr;
 
-/// An operator; unary or binary.
+/// An operator, unary or binary.
 #[derive(Debug, Clone, Copy)]
 pub enum Op {
     Un(fn(f64) -> f64),
@@ -19,14 +20,15 @@ pub enum Op {
 }
 
 macro_rules! make_ops {
-    ($($name:expr, $kind:expr, $f:expr);* $(;)?) => {
+    ($($bi_name:expr => $bi_f:expr),* ; $($un_name:expr => $un_f:expr),* $(;)*) => {
         impl FromStr for Op {
             type Err = ();
 
             fn from_str(s: &str) -> Result<Self, Self::Err> {
                 match s {
-                    $($name => Ok($kind($f)),)*
-                    _ => Err(())
+                    $($bi_name => Ok(Self::Bi($bi_f)),)*
+                    $($un_name => Ok(Self::Un($un_f)),)*
+                    _ => Err(()),
                 }
             }
         }
@@ -34,48 +36,48 @@ macro_rules! make_ops {
 }
 
 make_ops!(
-    "+", Op::Bi, f64::add;
-    "-", Op::Bi, f64::sub;
-    "*", Op::Bi, f64::mul;
-    "/", Op::Bi, f64::div;
-    "%", Op::Bi, f64::rem;
+    "+" => f64::add,
+    "-" => f64::sub,
+    "*" => f64::mul,
+    "/" => f64::div,
+    "%" => f64::rem,
 
-    "root", Op::Bi, |a, b| a.powf(1.0 / b);
-    "pow", Op::Bi, f64::powf;
-    "log", Op::Bi, f64::log;
+    "root" => |a, b| a.powf(1.0 / b),
+    "pow" => f64::powf,
+    "log" => f64::log,
 
-    "max", Op::Bi, f64::max;
-    "min", Op::Bi, f64::min;
+    "max" => f64::max,
+    "min" => f64::min;
 
-    "neg", Op::Un, f64::neg;
-    "abs", Op::Un, f64::abs;
-    "nabs", Op::Un, |n| -n.abs();
+    "neg" => f64::neg,
+    "abs" => f64::abs,
+    "nabs" => |n| -n.abs(),
 
-    "inv", Op::Un, |n| 1.0 / n;
-    "sqrt", Op::Un, f64::sqrt;
-    "cbrt", Op::Un, f64::cbrt;
+    "inv" => |n| 1.0 / n,
+    "sqrt" => f64::sqrt,
+    "cbrt" => f64::cbrt,
 
-    "exp", Op::Un, f64::exp;
-    "ln", Op::Un, f64::ln;
+    "exp" => f64::exp,
+    "ln" => f64::ln,
 
-    "sin", Op::Un, f64::sin;
-    "cos", Op::Un, f64::cos;
-    "tan", Op::Un, f64::tan;
-    "asin", Op::Un, f64::asin;
-    "acos", Op::Un, f64::acos;
-    "atan", Op::Un, f64::atan;
+    "sin" => f64::sin,
+    "cos" => f64::cos,
+    "tan" => f64::tan,
+    "asin" => f64::asin,
+    "acos" => f64::acos,
+    "atan" => f64::atan,
 
-    "sind", Op::Un, |n| n.to_radians().sin();
-    "cosd", Op::Un, |n| n.to_radians().cos();
-    "tand", Op::Un, |n| n.to_radians().tan();
-    "asind", Op::Un, |n| n.to_radians().asin();
-    "acosd", Op::Un, |n| n.to_radians().acos();
-    "atand", Op::Un, |n| n.to_radians().atan();
+    "sind" => |n| n.to_radians().sin(),
+    "cosd" => |n| n.to_radians().cos(),
+    "tand" => |n| n.to_radians().tan(),
+    "asind" => |n| n.to_radians().asin(),
+    "acosd" => |n| n.to_radians().acos(),
+    "atand" => |n| n.to_radians().atan(),
 
-    "sinh", Op::Un, f64::sinh;
-    "cosh", Op::Un, f64::cosh;
-    "tanh", Op::Un, f64::tanh;
-    "asinh", Op::Un, f64::asinh;
-    "acosh", Op::Un, f64::acosh;
-    "atanh", Op::Un, f64::atanh;
+    "sinh" => f64::sinh,
+    "cosh" => f64::cosh,
+    "tanh" => f64::tanh,
+    "asinh" => f64::asinh,
+    "acosh" => f64::acosh,
+    "atanh" => f64::atanh;
 );
